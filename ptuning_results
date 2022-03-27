@@ -1,0 +1,53 @@
+# conll03 + bert-base
+'''
+{'train_runtime': 1980.0165, 'train_samples_per_second': 212.741, 'train_steps_per_second': 3.333, 'train_loss': 0.032442094882329305, 'epoch': 30.0}
+100% 6600/6600 [32:59<00:00,  3.33it/s]
+***** train metrics *****
+  epoch                    =       30.0
+  train_loss               =     0.0324
+  train_runtime            = 0:33:00.01
+  train_samples_per_second =    212.741
+  train_steps_per_second   =      3.333
+***** best metrics *****
+  best_epoch   =     13
+  best_eval_f1 = 0.9376
+  best_test_f1 = 0.8929
+  epoch        =   30.0
+'''
+!bash run_script/conll03_bert-base.sh
+
+
+# conll03 + bert-large
+'''
+***** train metrics *****
+  epoch                    =       30.0
+  train_loss               =     0.0377
+  train_runtime            = 1:37:02.44
+  train_samples_per_second =     72.346
+  train_steps_per_second   =      2.262
+***** best metrics *****
+  best_epoch   =     25
+  best_eval_f1 = 0.9413
+  best_test_f1 =  0.902
+  epoch        =   30.0
+'''
+!bash run_script/conll03_bert-large.sh
+
+
+# conll03 + bert-large-NER
+'''
+***** train metrics *****
+  epoch                    =       30.0
+  train_loss               =     0.0181
+  train_runtime            = 1:37:38.27
+  train_samples_per_second =     71.903
+  train_steps_per_second   =      2.248
+***** best metrics *****
+  best_epoch   =     16
+  best_eval_f1 = 0.9595
+  best_test_f1 = 0.9128
+  epoch        =   30.0
+'''
+!bash run_script/conll03_bert-large-NER.sh
+
+
