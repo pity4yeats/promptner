@@ -10,3 +10,4 @@ saved_models/
 venv/
 .idea/
 best_model/
+.DS_Store
