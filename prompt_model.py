@@ -222,10 +222,10 @@ def inference(test_data):
 if __name__ == '__main__':
     conll03_train_file = 'data/tmp/conll03_train.csv'
     conll03_devel_file = 'data/tmp/conll03_devel.csv'
-    conll03_test_file = 'data/tmp/conll03_test.csv'
+    conll03_test_file = 'data/tmp/conll03_test.txt'
     conll04_train_file = 'data/tmp/conll04_train.csv'
     conll04_devel_file = 'data/tmp/conll04_devel.csv'
-    conll04_test_file = 'data/tmp/conll04_test.csv'
+    conll04_test_file = 'data/tmp/conll04_test.txt'
 
     # print(os.getcwd())
     train(conll04_train_file, conll04_devel_file)
