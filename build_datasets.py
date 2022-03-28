@@ -107,6 +107,15 @@ def get_input_examples(filepath):
     return input_examples
 
 
+# get the ngram set from kth index of given tokens_list(sentence)
+def ngram(tokens_list, k):
+    n = 9
+    kgram = []
+    for i in range(1, min(n, len(tokens_list) - k + 1)):
+        kgram.append(' '.join(tokens_list[k:k + i]))
+    return kgram
+
+
 def fill_template(input_example, mask_map=None):
     num_golds = len(input_example.golds)
     filled_prompts = {}
@@ -142,18 +151,36 @@ def fill_template(input_example, mask_map=None):
     pos_filled_prompts = []
     for token_span, mask in input_example.golds.items():
         pos_filled_prompts.append(
-            template['pos'].replace('<token_span>', token_span).replace('<mask>', mask_map[mask] if mask_map else mask.lower())
+            template['pos'].replace('<token_span>', token_span).replace('<mask>',
+                                                                        mask_map[mask] if mask_map else mask.lower())
         )
 
+    candidates = []
     # randomly select twice the number of non-OTHER entities OTHER entities to fill the negative template
-    neg_filled_prompts = []
-    num_nonentities = len(input_example.nonentity_indices)
+    tokens_list = input_example.sentence.split(' ')
+    golds = input_example.golds
     neg_limit = round(num_golds * 1.5)
-    if num_nonentities > neg_limit:
-        for i in random.sample(input_example.nonentity_indices, neg_limit):
-            neg_filled_prompts.append(
-                template['neg'].replace('<token_span>', input_example.sentence.split(' ')[i])
-            )
+    for i in range(len(tokens_list)):
+        # add ith_ngram to candidates with golds excluded
+        ith_ngram = ngram(tokens_list, i)
+        candidates.extend([c for c in ith_ngram if c not in golds])
+    # remove duplicate elements in candidates
+    candidates = list(set(candidates))
+
+    # fill selected prompts to this list
+    neg_filled_prompts = []
+    if len(candidates) < neg_limit:
+        for candidate in candidates:
+            neg_filled_prompts.append(template['neg'].replace('<token_span>', candidate))
+    else:
+        for candidate in random.sample(candidates, neg_limit):
+            neg_filled_prompts.append(template['neg'].replace('<token_span>', candidate))
+
+    # if num_nonentities > neg_limit:
+    #     for i in random.sample(input_example.nonentity_indices, neg_limit):
+    #         neg_filled_prompts.append(
+    #             template['neg'].replace('<token_span>', input_example.sentence.split(' ')[i])
+    #         )
 
     filled_prompts['pos'] = pos_filled_prompts
     filled_prompts['neg'] = neg_filled_prompts
@@ -229,13 +256,11 @@ if __name__ == '__main__':
     mit_restaurant_train = get_input_examples('./data/mit-restaurant/train.txt')
     mit_restaurant_test = get_input_examples('./data/mit-restaurant/test.txt')
 
-    save_dataset(conll03_train, './data/tmp/conll03_train.csv')
-    save_dataset(conll03_devel, './data/tmp/conll03_devel.csv')
-    save_dataset(conll03_test, './data/tmp/conll03_test.csv')
+    # save_dataset(conll03_train, './data/tmp/conll03_train.csv')
+    # save_dataset(conll03_devel, './data/tmp/conll03_devel.csv')
 
     save_dataset(conll04_train, './data/tmp/conll04_train.csv')
     save_dataset(conll04_devel, './data/tmp/conll04_devel.csv')
-    save_dataset(conll04_test, './data/tmp/conll04_test.csv')
 
     # save_dataset(mit_movie_train, './data/tmp/mit_movie_train.csv')
     # save_dataset(mit_movie_test, './data/tmp/mit_movie_test.csv')

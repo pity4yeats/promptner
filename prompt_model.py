@@ -1,3 +1,5 @@
+import os
+# os.chdir('/content/drive/MyDrive/promptner/code_dir')
 import time
 import math
 import pandas
@@ -7,15 +9,18 @@ from transformers import BartTokenizer, BartForConditionalGeneration
 from lib.utils_metrics import *
 from lib.seq2seq_model import Seq2SeqModel
 from tqdm import tqdm, trange
-
 epochs = 3
-batch_size = 4
+batch_size = 32
 output_dir = './saved_models'
-train_dataset = ''
-devel_dataset = ''
+code_dir = os.path.dirname(os.path.realpath('./'))
+# code_dir = '/content/drive/MyDrive/promptner/code_dir'
 
 use_cuda = torch.cuda.is_available()
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+# device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:0')
+
+tokenizer = BartTokenizer.from_pretrained('facebook/bart-large')
+model = BartForConditionalGeneration.from_pretrained('./best_model')
 
 
 class InputExample:
@@ -24,7 +29,10 @@ class InputExample:
         self.labels = labels
 
 
-def train():
+def train(train_data, devel_data):
+    train_dataset = os.path.join(code_dir, train_data)
+    devel_dataset = os.path.join(code_dir, devel_data)
+
     logging.basicConfig(level=logging.INFO)
     transformers_logger = logging.getLogger("transformers")
     transformers_logger.setLevel(logging.WARNING)
@@ -33,6 +41,10 @@ def train():
     raw_evaluation_dataset = pandas.read_csv(devel_dataset, sep=',').values.tolist()
     training_dataset = pandas.DataFrame(raw_training_dataset, columns=["input_text", "target_text"])
     evaluation_dataset = pandas.DataFrame(raw_evaluation_dataset, columns=["input_text", "target_text"])
+
+    # print(training_dataset)
+    # print(evaluation_dataset)
+    # exit(0)
 
     model_args = {
         "reprocess_input_data": True, "overwrite_output_dir": True, "use_multiprocessing": False,
@@ -44,13 +56,16 @@ def train():
     }
 
     model = Seq2SeqModel(
-        encoder_type='roberta',
-        encoder_name='roberta-base',
-        decoder_name='roberta-base',
+        # encoder_type='roberta',
+        # encoder_name='roberta-base',
+        # decoder_name='roberta-base',
+        encoder_decoder_type="bart",
+        encoder_decoder_name="facebook/bart-large",
         args=model_args,
         use_cuda=use_cuda
     )
 
+    print(model)
     model.train_model(training_dataset, eval_data=evaluation_dataset)
 
 
@@ -86,6 +101,8 @@ def ngram(tokens_list, k):
 
 # predict
 def predict_kernel(tokens_spans, tokens_list, igram):
+    # tokenizer = BartTokenizer.from_pretrained('facebook/bart-large')
+    # model = BartForConditionalGeneration.from_pretrained('./outputs/best_model')
     ner_tags = {0: 'LOC', 1: 'PER', 2: 'ORG', 3: 'MISC', 4: 'O'}
     template_tails = [
         " is a/an location entity .",
@@ -97,8 +114,7 @@ def predict_kernel(tokens_spans, tokens_list, igram):
     num_tails = len(template_tails)
     num_spans = len(tokens_spans)
 
-    model.eval()
-    model.config.use_cache = False
+    model.to(device)
 
     inputs = ' '.join(tokens_list[:])
     inputs = [inputs] * (num_tails * num_spans)
@@ -172,7 +188,7 @@ def predict(tokens_list):
     return results
 
 
-def inference(test_data='./data/conll2003/test.txt'):
+def inference(test_data):
     input_examples = get_input_examples(test_data)
 
     targets = []
@@ -184,9 +200,9 @@ def inference(test_data='./data/conll2003/test.txt'):
     for input_example in input_examples:
         predicts.append(predict(input_example.tokens_list))
         targets.append(input_example.labels)
-        print(f'{input_example.tokens_list=}')
-        print(f'{predicts[i]=}')
-        print(f'{targets[i]=}')
+        # print(f'{input_example.tokens_list=}')
+        # print(f'{predicts[i]=}')
+        # print(f'{targets[i]=}')
         i += 1
         pbar.update(1)
     pbar.close()
@@ -204,12 +220,16 @@ def inference(test_data='./data/conll2003/test.txt'):
 
 
 if __name__ == '__main__':
-    tokenizer = BartTokenizer.from_pretrained('facebook/bart-large')
-    model = BartForConditionalGeneration.from_pretrained('./best_model')
+    conll03_train_file = 'data/tmp/conll03_train.csv'
+    conll03_devel_file = 'data/tmp/conll03_devel.csv'
+    conll03_test_file = 'data/tmp/conll03_test.csv'
+    conll04_train_file = 'data/tmp/conll04_train.csv'
+    conll04_devel_file = 'data/tmp/conll04_devel.csv'
+    conll04_test_file = 'data/tmp/conll04_test.csv'
 
-    train_dataset = "./data/tmp/conll04_train.csv"
-    devel_dataset = "./data/tmp/conll04_devel.csv"
+    # print(os.getcwd())
+    train(conll04_train_file, conll04_devel_file)
 
-    train()
-
-    # inference()
+    # model.eval()
+    # model.config.use_cache = False
+    # inference(conll04_test_file)
