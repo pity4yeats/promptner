@@ -224,8 +224,8 @@ def save_dataset(dataset, path):
     processed_data = []
     for data in dataset:
         # if processing conll datasets:
-        prompts = fill_template(data, mask_maps)
-        # prompts = fill_template(data)
+        # prompts = fill_template(data, mask_maps)
+        prompts = fill_template(data)
         for pos in prompts['pos']:
             processed_data.append((data.sentence, pos))
         for neg in prompts['neg']:
@@ -259,16 +259,14 @@ if __name__ == '__main__':
     # save_dataset(conll03_train, './data/tmp/conll03_train.csv')
     # save_dataset(conll03_devel, './data/tmp/conll03_devel.csv')
 
-    save_dataset(conll04_train, './data/tmp/conll04_train.csv')
-    save_dataset(conll04_devel, './data/tmp/conll04_devel.csv')
+    # save_dataset(conll04_train, './data/tmp/conll04_train.csv')
+    # save_dataset(conll04_devel, './data/tmp/conll04_devel.csv')
 
-    # save_dataset(mit_movie_train, './data/tmp/mit_movie_train.csv')
-    # save_dataset(mit_movie_test, './data/tmp/mit_movie_test.csv')
-    # save_dataset(mit_movie_trivial_train, './data/tmp/mit_movie_trivial_train.csv')
-    # save_dataset(mit_movie_trivial_test, './data/tmp/mit_movie_trivial_test.csv')
-    #
-    # save_dataset(mit_restaurant_train, './data/tmp/mit_restaurant_train.csv')
-    # save_dataset(mit_restaurant_test, './data/tmp/mit_restaurant_test.csv')
+    save_dataset(mit_movie_train, './data/tmp/mit_movie_train.csv')
+
+    save_dataset(mit_movie_trivial_train, './data/tmp/mit_movie_trivial_train.csv')
+
+    save_dataset(mit_restaurant_train, './data/tmp/mit_restaurant_train.csv')
 
     # describe_dataset(conll03_train)
     # describe_dataset(conll03_devel)
