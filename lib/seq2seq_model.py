@@ -285,6 +285,9 @@ class Seq2SeqModel:
         model = self.model
         args = self.args
 
+        # print(model)
+        # exit(0)
+
         tb_writer = SummaryWriter(logdir=args.tensorboard_dir)
         train_sampler = RandomSampler(train_dataset)
         train_dataloader = DataLoader(

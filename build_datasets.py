@@ -214,7 +214,7 @@ def describe_dataset(dataset):
         "total_num_nonentity": total_num_labels - total_num_golds,
         "tags": sorted(tags),
     }
-    print("Randomly selected sample data:\n{}".format(random.choice(dataset)))
+    # print("Randomly selected sample data:\n{}".format(random.choice(dataset)))
     print("Dataset summary:\n{}".format(data_summary))
 
 
@@ -237,13 +237,19 @@ def save_dataset(dataset, path):
 
 if __name__ == '__main__':
     # CoNLL2003
+    # {'1': 14575, '2': 7361, '3': 903, '4': 250, '5': 82, '6': 25, '7': 18, '8': 2, '9': 0, '10': 3, 'extra': 0}
     conll03_train = get_input_examples('./data/conll2003/train_ner.txt')  # max sentence: 114
+    # {'1': 3689, '2': 1853, '3': 205, '4': 83, '5': 19, '6': 3, '7': 6, '8': 0, '9': 0, '10': 2, 'extra': 0}
     conll03_devel = get_input_examples('./data/conll2003/devel_ner.txt')
+    # {'1': 3512, '2': 1770, '3': 235, '4': 37, '5': 20, '6': 5, '7': 0, '8': 0, '9': 0, '10': 0, 'extra': 0}
     conll03_test = get_input_examples('./data/conll2003/test_ner.txt')  # max sentence: 118
 
     # CoNLL2004
+    # {'1': 1480, '2': 1110, '3': 486, '4': 181, '5': 35, '6': 16, '7': 4, '8': 0, '9': 1, '10': 0, 'extra': 2}
     conll04_train = get_input_examples('./data/ptuningv2/CoNLL04/train.txt')
+    # {'1': 416, '2': 275, '3': 129, '4': 37, '5': 12, '6': 1, '7': 4, '8': 0, '9': 1, '10': 0, 'extra': 0}
     conll04_devel = get_input_examples('./data/ptuningv2/CoNLL04/dev.txt')
+    # {'1': 468, '2': 347, '3': 171, '4': 55, '5': 11, '6': 5, '7': 0, '8': 0, '9': 1, '10': 1, 'extra': 0}
     conll04_test = get_input_examples('./data/ptuningv2/CoNLL04/test.txt')
 
     # MIT Movie
@@ -262,13 +268,54 @@ if __name__ == '__main__':
     # save_dataset(conll04_train, './data/tmp/conll04_train.csv')
     # save_dataset(conll04_devel, './data/tmp/conll04_devel.csv')
 
-    save_dataset(mit_movie_train, './data/tmp/mit_movie_train.csv')
-
-    save_dataset(mit_movie_trivial_train, './data/tmp/mit_movie_trivial_train.csv')
-
-    save_dataset(mit_restaurant_train, './data/tmp/mit_restaurant_train.csv')
+    # save_dataset(mit_movie_train, './data/tmp/mit_movie_train.csv')
+    #
+    # save_dataset(mit_movie_trivial_train, './data/tmp/mit_movie_trivial_train.csv')
+    #
+    # save_dataset(mit_restaurant_train, './data/tmp/mit_restaurant_train.csv')
 
     # describe_dataset(conll03_train)
+
+    max_size = 1
+    max_gold = ''
+    record = {'1': 0, '2': 0, '3': 0, '4': 0, '5': 0, '6': 0, '7': 0, '8': 0, '9': 0, '10': 0, 'extra': 0}
+    for input in mit_movie_train:
+        for key in input.golds.keys():
+            gold = key.split(' ')
+            size = len(gold)
+            # if size > max_size:
+            #     max_size = size
+            #     max_gold = gold
+            if size == 1:
+                record['1'] += 1
+            elif size == 2:
+                record['2'] += 1
+            elif size == 3:
+                record['3'] += 1
+            elif size == 4:
+                record['4'] += 1
+            elif size == 5:
+                record['5'] += 1
+            elif size == 6:
+                record['6'] += 1
+            elif size == 7:
+                record['7'] += 1
+            elif size == 8:
+                record['8'] += 1
+            elif size == 9:
+                record['9'] += 1
+            elif size == 10:
+                record['10'] += 1
+            else:
+                record['extra'] += 1
+
+    print(record)
+    # for k, v in record:
+    #     print('{}: {}'.format(k, v))
+
+    # print(f'{max_size=}')
+    # print(f'{max_gold=}')
+
     # describe_dataset(conll03_devel)
     # describe_dataset(conll03_test)
 

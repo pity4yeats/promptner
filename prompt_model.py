@@ -12,8 +12,8 @@ from tqdm import tqdm, trange
 epochs = 3
 batch_size = 32
 output_dir = './saved_models'
-code_dir = os.path.dirname(os.path.realpath('./'))
-# code_dir = '/content/drive/MyDrive/promptner/code_dir'
+# code_dir = os.path.dirname(os.path.realpath('.'))
+code_dir = '~/PycharmProjects/promptner/'
 
 use_cuda = torch.cuda.is_available()
 # device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -65,7 +65,6 @@ def train(train_data, devel_data):
         use_cuda=use_cuda
     )
 
-    print(model)
     model.train_model(training_dataset, eval_data=evaluation_dataset)
 
 
@@ -125,8 +124,11 @@ def predict_kernel(tokens_spans, tokens_list, igram):
             igram_prompts.append(tokens_spans[i] + template_tails[j])
     igram_prompts_input_ids = tokenizer(igram_prompts, return_tensors='pt', padding=True, truncation=True)['input_ids']
     # TODO what does this do?
+    # refer: https://huggingface.co/docs/transformers/main/en/model_doc/bart#transformers.BartTokenizer
+    # 2 here stands for </s> token, means using separator token to replace the initial token of every prompt
     igram_prompts_input_ids[:, 0] = 2
 
+    # zero-initialize a list the same length of the prompts list
     tmp = [0] * num_tails * num_spans
     # Iterate over all igram_prompts
     for i in range(len(igram_prompts) // num_tails):
